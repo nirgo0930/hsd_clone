@@ -1,0 +1,139 @@
+drop table menu_sub_menu;
+drop table receipt_sub_menu;
+drop table receipt;
+drop table sub_menu;
+drop table menu;
+drop table category;
+drop table member;
+drop table franchisee;
+
+drop sequence category_seq;
+drop sequence member_seq;
+drop sequence menu_seq;
+drop sequence sub_menu_seq;
+drop sequence menu_sub_menu_seq;
+drop sequence receipt_seq;
+drop sequence receipt_sub_menu_seq;
+drop sequence franchisee_seq;
+
+create table member(
+member_id number primary key,
+web_id varchar2(20) not null,
+password varchar2(30) not null,
+email varchar2(30) not null,
+phone varchar2(30) not null,
+ok_ad char(1) not null
+);
+
+create table category(
+category_id number primary key,
+c_title varchar2(40) not null,
+parent number,
+foreign key (parent) references category(category_id)
+);
+
+create table menu(
+menu_id number primary key,
+category_id number not null,
+foreign key (category_id) references category(category_id),
+m_title varchar2(40) not null,
+info varchar2(300) not null,
+m_price number not null,
+calorie number,
+img_url varchar2(30)
+);
+
+create table sub_menu(
+sub_menu_id number primary key,
+sub_title varchar2(20) not null,
+sub_price number
+);
+
+create table menu_sub_menu(
+menu_sub_menu_id number primary key,
+menu_id number not null,
+foreign key (menu_id) references menu(menu_id),
+sub_menu_id number not null,
+foreign key (sub_menu_id) references sub_menu(sub_menu_id)
+);
+
+create table receipt(
+receipt_id number primary key,
+member_id number not null,
+foreign key (member_id) references member(member_id),
+menu_id number not null,
+foreign key (menu_id) references menu(menu_id),
+receipt_date date not null
+);
+
+create table receipt_sub_menu(
+receipt_sub_menu_id number primary key,
+receipt_id number,
+foreign key (receipt_id) references receipt(receipt_id),
+sub_menu_id number not null,
+foreign key (sub_menu_id) references sub_menu(sub_menu_id)
+);
+
+create table franchisee(
+franchisee_id number primary key,
+f_title varchar2(40) not null,
+location_a varchar2(20) not null,
+location_b varchar2(20) not null,
+location_c varchar2(50) not null,
+latitude number not null,
+longitude number not null
+);
+
+create sequence category_seq increment by 1 start with 1;
+create sequence member_seq increment by 1 start with 1;
+create sequence menu_seq increment by 1 start with 1;
+create sequence sub_menu_seq increment by 1 start with 1;
+create sequence menu_sub_menu_seq increment by 1 start with 1;
+create sequence receipt_seq increment by 1 start with 1;
+create sequence receipt_sub_menu_seq increment by 1 start with 1;
+create sequence franchisee_seq increment by 1 start with 1;
+commit;
+
+
+
+
+
+insert into member values(member_seq.nextval,'test','1q2w','test@test.com','01094536639','0');
+
+insert into category(category_id,c_title) values(category_seq.nextval,'사각도시락');
+insert into category(category_id,c_title) values(category_seq.nextval,'보울도시락');
+insert into category(category_id,c_title,parent) values(category_seq.nextval,'고기고기시리즈',1);
+insert into category(category_id,c_title,parent) values(category_seq.nextval,'모둠시리즈',1);
+insert into category(category_id,c_title,parent) values(category_seq.nextval,'마요',2);
+
+insert into menu values(menu_seq.nextval, 3,'돈까스도련님고기고기','돈까스와 떡햄버그, 치킨으로 구성된 도련님', 6000, 872.73, '3_1.jpg');
+insert into menu values(menu_seq.nextval, 3,'탕수육도련님고기고기','돈까스와 바삭한 찹쌀탕수육으로 구성된 도련님', 5800, 721, '3_2.jpg');
+insert into menu values(menu_seq.nextval, 4,'오븐구이 오리도시락','오븐에서 3번 구워 기름기가 적은 쫄깃한 북경오리와 톡 쏘는 상큼한 한솥 사과겨자소스를 곁들인 오븐구이 오리도시락', 6900, 800, '4_1.jpg');
+insert into menu values(menu_seq.nextval, 5,'메가스팸마요','남녀노소 누구나 좋아하는 스팸을 사용하여 마요의 부드러운맛과 스팸의 깊은 풍미가 잘 어우러집니다.', 5600, 1150, '5_1.jpg');
+
+insert into sub_menu values(sub_menu_seq.nextval, '곱빼기', 400);
+insert into sub_menu values(sub_menu_seq.nextval, '현미밥', 1000);
+insert into sub_menu values(sub_menu_seq.nextval, '계란후라이', 1000);
+insert into sub_menu values(sub_menu_seq.nextval, '청양고추', 300);
+
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 1 ,1);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 1 ,2);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 1 ,3);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 1 ,4);
+
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 2 ,1);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 2 ,2);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 2 ,3);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 2 ,4);
+
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 3 ,1);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 3 ,2);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 3 ,3);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 3 ,4);
+
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 4 ,1);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 4 ,2);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 4 ,3);
+insert into menu_sub_menu values(menu_sub_menu_seq.nextval, 4 ,4);
+
+commit;
