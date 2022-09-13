@@ -217,6 +217,72 @@ app.post("/order", async (req, res) => {
     }
 });
 
+
+
+app.post("/myInfo", async (req, res) => {
+    try {
+        let conn = await oracledb.getConnection(dbconfig);
+
+        let sql = "select RECEIPT_ID, MENU_ID,  to_char(RECEIPT_DATE, 'yyyy.mm.dd HH24:MI:SS') as RECEIPT_DATE from RECEIPT where MEMBER_ID = :member_ID";
+        let data = [
+            req.body.member_ID
+        ]
+
+        let result = await conn.execute(sql, data);
+
+        dataStr = JSON.stringify(result);
+        arrStr = JSON.stringify(result.rows);
+        var arr = JSON.parse(arrStr);
+
+        for await (const [index, item] of (arr).entries()) {
+            let sql = "select M_TITLE, M_PRICE from MENU where MENU_ID = " + item.MENU_ID;
+            let result = await conn.execute(sql);
+            console.log(result.rows[0]);
+
+            let sql2 = "select SUB_MENU_ID from RECEIPT_SUB_MENU where RECEIPT_ID = " + item.RECEIPT_ID;
+            let result2 = await conn.execute(sql2);
+            let sub_ids = "";
+            for await (const [sub_index, sub_item] of (result2.rows).entries()) {
+                if (sub_index == result2.rows.length - 1) {
+                    sub_ids += sub_item.SUB_MENU_ID
+                }
+                else {
+                    sub_ids += sub_item.SUB_MENU_ID + ", "
+                }
+            }
+
+            let sql3 = "select SUB_TITLE, SUB_PRICE from SUB_MENU where SUB_MENU_ID IN (" + sub_ids + ")";
+            let result3 = await conn.execute(sql3);
+            let sub_title = "";
+            let sub_sum = 0;
+            for await (const [sub_index, sub_item] of (result3.rows).entries()) {
+                if (sub_index == result2.rows.length - 1) {
+                    sub_title += sub_item.SUB_TITLE;
+                    sub_sum += sub_item.SUB_PRICE;
+                }
+                else {
+                    sub_title += sub_item.SUB_TITLE + ", ";
+                    sub_sum += sub_item.SUB_PRICE;
+                }
+            }
+
+            console.log(result3.rows);
+
+            arr[index] = {
+                ...arr[index],
+                DETAIL: result.rows[0].M_TITLE + ", " + sub_title,
+                SUM: result.rows[0].M_PRICE + sub_sum
+            }
+        }
+
+        console.log(arr);
+        conn.release(res.send(arr));
+    } catch (err) {
+        console.log(err);
+        res.send(err);
+    }
+});
+
 app.listen(port, () => {
     console.log(`Connect at https://localhost:${port}`);
 })
